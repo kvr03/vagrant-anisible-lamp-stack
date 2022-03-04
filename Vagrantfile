@@ -14,7 +14,8 @@ Vagrant.configure("2") do |config|
     auto_correct: true, id: "wanderer-app"
     app.vm.network "private_network", ip: "192.168.200.10"
     app.vm.provision "ansible_local" do |ansible|
-      ansible.playbook = "ansible/playbook.yaml"
+      #ansible.playbook = "ansible/playbook.yaml"
+      ansible.playbook = "ansible/node.yaml"
       ansible.become = true
       ansible.become_user = "root"
     end
