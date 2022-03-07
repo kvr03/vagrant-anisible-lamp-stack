@@ -1,8 +1,42 @@
 ---
 - hosts: all
   gather_facts: true
+  vars_files: vars/main.yaml
   tasks:
-    - name: install Apache
+    - name: Install prerequisites
       apt: 
-         name: apache2 
-         state: latest
+        name: "{{ item }}" 
+        update_cache: yes 
+        state: latest 
+        force_apt_get: yes
+      loop: [ 'aptitude' ]
+
+    - name: Install Apache
+      apt: 
+        name: apache2 
+        update_cache: yes 
+        state: latest
+    
+    - name: Create document root for your domain
+      file:
+        path: "/var/www/{{ http_host }}"
+        state: directory
+        owner: "vagrant"
+        mode: '0755'
+
+    - name: Copy your index page
+      template:
+        src: "apache_ubuntu/files/index.html.j2"
+        dest: "/var/www/html/index.html"
+
+    - name: Set up virtuahHost
+      template:
+        src: "apache_ubuntu/apache.conf.j2"
+        dest: "/etc/apache2/sites-available/{{ http_conf }}"
+      notify: restart-apache
+
+  handlers:
+    - name: restart-apache
+      service:
+        name: apache2
+        state: restarted
